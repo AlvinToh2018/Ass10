@@ -1,4 +1,5 @@
 library(quanteda)
+library(ggplot2)
 library(dplyr)
 
 
@@ -60,16 +61,6 @@ unigram <- toks %>% tokens_ngrams(n=1)
 bigram <- toks %>% tokens_ngrams(n=2)
 trigram <- toks %>% tokens_ngrams(n=3)
 
-top20uni <- topfeatures(unigram, 20)  # 20 top words
-uni20_df <- data.frame(word=names(top20uni), freq=top20uni, row.names=NULL)
-
-#ggplot(data[1:20,], aes(reorder(word, -freq), freq)) +
-ggplot(uni20_df, aes(reorder(word, -freq), freq)) +
-  labs(x = "Top 20 Most Common Unigrams", y = "Frequency") +
-#    coord_flip() + 
-  geom_bar()
-
-
 
 # create the freq tables for lookup of suggestion
 # as the freq tables are loaded into Shiny for word lookup, 
@@ -85,6 +76,19 @@ bi.freq <- bigram %>%
 tri.freq <- trigram %>% 
   dfm() %>% 
   textstat_frequency()
+
+uni20_df <- data.frame(word=uni.freq$feature[1:20], 
+                       freq=uni.freq$frequency[1:20], row.names=NULL)
+
+#ggplot(data[1:20,], aes(reorder(word, -freq), freq)) +
+ggplot(uni20_df, aes(reorder(word, -freq), freq)) +
+  labs(x = "Top 20 Most Common Unigrams", y = "Frequency") +
+  #    coord_flip() + 
+  geom_bar(stat = "identity")
+
+
+###################################################################
+
 
 # remove the cols not needed from frequency table to save memory space when loaded into Shiny
 # keep only the 1st 2 cols - 1) feature (ngram), 2) frequency
